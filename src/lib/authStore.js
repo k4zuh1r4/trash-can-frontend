@@ -37,6 +37,25 @@ export const useAuthStore = create((set, get) => ({
             return false
         }
     },
+    register: async (data) => {
+        set({ isRegistering: true })
+        try {
+            const res = await axiosInstance.post("/auth/register", data)
+            if (res.status === 201) {
+                // For registration, we store the returned data but might not have a token yet
+                set({ authUser: res.data })
+                toast.success("Registration successful")
+                return true
+            }
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || "Registration failed"
+            toast.error(errorMessage)
+            console.error("Registration error:", error)
+            return false
+        } finally {
+            set({ isRegistering: false })
+        }
+    },
 
     login: async (data) => {
         set({ isLoggingIn: true })
