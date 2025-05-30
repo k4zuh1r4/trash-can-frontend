@@ -20,7 +20,7 @@ export default function DistributorDashboard() {
         loadPending()
     }, [getPendingTransactions])
     return (
-        <ProtectRoute allowedRoles={['distributor', 'admin']}>
+        <ProtectRoute allowedRoles={['distributor']}>
             <NavbarDashboard />
             <div className="container mx-auto p-6">
                 <h1 className="text-2xl font-bold mb-6">Distributor Dashboard</h1>

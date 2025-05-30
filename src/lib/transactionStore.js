@@ -34,7 +34,7 @@ export const useTransactionStore = create((set, get) => ({
         }
     },
 
-    // Get all transactions (admin only)
+    //(admin only)
     getAllTransactions: async () => {
         set({ isLoadingAllTransactions: true })
         try {
@@ -52,8 +52,6 @@ export const useTransactionStore = create((set, get) => ({
             set({ isLoadingAllTransactions: false })
         }
     },
-
-    // Create a new transaction
     createTransaction: async (transactionData) => {
         set({ isCreatingTransaction: true })
         try {
@@ -74,7 +72,7 @@ export const useTransactionStore = create((set, get) => ({
         }
     },
 
-    // get pending (distributor/admin only)
+    //distributor/admin only)
     getPendingTransactions: async () => {
         set({ isLoadingPendingTransactions: true })
         try {
@@ -93,7 +91,7 @@ export const useTransactionStore = create((set, get) => ({
         }
     },
 
-    // Approve(distributor/admin only)
+    //(distributor/admin only)
     approveTransaction: async (transactionId) => {
         set({ isApprovingTransaction: true })
         try {

@@ -9,7 +9,7 @@ export const NavbarDashboard = () => {
     const { authUser, logout } = useAuthStore()
     const [userRole, setUserRole] = useState(null)
 
-    // Get user role once on component mount
+    //get role on mount
     useEffect(() => {
         if (authUser) {
             setUserRole(authUser.role)
@@ -42,7 +42,6 @@ export const NavbarDashboard = () => {
                 return (
                     <>
                         <li><Link href="/dashboard/distributor/pending" className="text-center p-3 text-primary-content">Pending</Link></li>
-                        <li><Link href="/dashboard/distributor/list" className="text-center p-3 text-primary-content">Transactions</Link></li>
                         <li><Link href="/dashboard/distributor/profile" className="text-center p-3 text-primary-content">Profile</Link></li>
                     </>
                 )

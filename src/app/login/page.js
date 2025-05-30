@@ -1,20 +1,54 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { MenuNavbar } from '@/components/menuNavbar'
 import { useRouter } from 'next/navigation'
 import { Mail, Key } from 'lucide-react'
 import Link from 'next/link'
 import { useAuthStore } from '@/lib/authStore'
 import { Toaster } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 
 export default function Login() {
     const router = useRouter()
-    const { login, isLoggingIn } = useAuthStore()
+    const { login, isLoggingIn, authUser, checkAuth } = useAuthStore()
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     })
+    useEffect(() => {
+        const verifyAuth = async () => {
+            setIsCheckingAuth(true)
+            if (authUser) {
+                redirectToDashboard(authUser.role)
+                return
+            }
+            const token = localStorage.getItem("jwt")
+            if (token) {
+                const isLoggedIn = await checkAuth()
+                if (isLoggedIn) {
+                    const { authUser } = useAuthStore.getState()
+                    redirectToDashboard(authUser.role)
+                    return
+                }
+            }
+
+            setIsCheckingAuth(false)
+        }
+
+        verifyAuth()
+    }, [authUser, checkAuth, router])
+
+    const redirectToDashboard = (role) => {
+        if (role === 'admin') {
+            router.push('/dashboard/admin')
+        } else if (role === 'distributor') {
+            router.push('/dashboard/distributor')
+        } else {
+            router.push('/dashboard/user')
+        }
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -29,19 +63,19 @@ export default function Login() {
             if (success) {
                 // Get user from store after login
                 const { authUser } = useAuthStore.getState()
-
-                // Redirect based on role
-                if (authUser?.role === 'admin') {
-                    router.push('/dashboard/admin')
-                } else if (authUser?.role === 'distributor') {
-                    router.push('/dashboard/distributor')
-                } else {
-                    router.push('/dashboard/user')
-                }
+                redirectToDashboard(authUser.role)
             }
         } catch (error) {
             console.error('Error during login process:', error)
         }
+    }
+
+    if (isCheckingAuth) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="loading loading-spinner loading-lg text-primary"></div>
+            </div>
+        )
     }
 
     return (

@@ -7,7 +7,7 @@ export const useAuthStore = create((set, get) => ({
     isLoggingIn: false,
     isRegistering: false,
     isUpdatingProfile: false,
-    isCheckingAuth: false, // Changed to false by default
+    isCheckingAuth: false,
 
     checkAuth: async () => {
         set({ isCheckingAuth: true })
@@ -18,22 +18,24 @@ export const useAuthStore = create((set, get) => ({
                 return false
             }
 
-            // Set the token in the headers for the request
+            // Explicitly set auth header
             axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
             const res = await axiosInstance.get("/auth/check")
-            if (res.status === 200) {
+            if (res.status === 200 && res.data) {
                 set({ authUser: res.data, isCheckingAuth: false })
                 return true
             }
-        } catch (error) {
+            // If we got here without returning true, something went wrong
             localStorage.removeItem("jwt")
+            delete axiosInstance.defaults.headers.common['Authorization']
             set({ authUser: null, isCheckingAuth: false })
-            if (error.response && error.response.status === 401) {
-                toast.error("Session expired. Please log in again.")
-            } else {
-                console.error("Error checking authentication:", error)
-            }
+            return false
+        } catch (error) {
+            console.error("Auth check error:", error)
+            localStorage.removeItem("jwt")
+            delete axiosInstance.defaults.headers.common['Authorization']
+            set({ authUser: null, isCheckingAuth: false })
             return false
         }
     },

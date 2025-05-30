@@ -11,10 +11,9 @@ export function ProtectRoute({ children, allowedRoles = [] }) {
     const [authChecked, setAuthChecked] = useState(false)
 
     useEffect(() => {
-        // Only run this effect once per component mount
+        //run once per mount
         if (!authChecked) {
             const verifyAuth = async () => {
-                // If no user is logged in yet, try to verify from token
                 if (!authUser) {
                     const isLoggedIn = await checkAuth()
                     if (!isLoggedIn) {
@@ -26,7 +25,7 @@ export function ProtectRoute({ children, allowedRoles = [] }) {
                     }
                 }
 
-                // Get current user state after auth check
+                //get current user state
                 const user = useAuthStore.getState().authUser
 
                 if (allowedRoles.length > 0) {
@@ -48,7 +47,7 @@ export function ProtectRoute({ children, allowedRoles = [] }) {
         }
     }, [authChecked, authUser, router, allowedRoles, checkAuth])
 
-    // Helper function to redirect based on role
+    //redirect based on role
     const redirectBasedOnRole = (role) => {
         switch (role) {
             case 'admin':

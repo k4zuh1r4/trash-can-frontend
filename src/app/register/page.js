@@ -1,15 +1,16 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { MenuNavbar } from '@/components/menuNavbar'
 import { useRouter } from 'next/navigation'
-import { Mail, Key, Blocks, User, Phone, Users } from 'lucide-react'
+import { Mail, Key, User, Phone, Blocks, Users } from 'lucide-react'
 import Link from 'next/link'
 import { useAuthStore } from '@/lib/authStore'
 import { Toaster } from 'react-hot-toast'
 
 export default function Register() {
     const router = useRouter()
-    const { register, isRegistering } = useAuthStore()
+    const { register, isRegistering, authUser, checkAuth } = useAuthStore()
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
     const [formData, setFormData] = useState({
         email: '',
@@ -17,8 +18,46 @@ export default function Register() {
         contactNumber: '',
         password: '',
         walletAddress: '',
-        role: 'user' // default
+        role: 'user'
     })
+
+    // Check if user is already logged in
+    useEffect(() => {
+        const verifyAuth = async () => {
+            setIsCheckingAuth(true)
+
+            // First check if we already have a user in the store
+            if (authUser) {
+                redirectToDashboard(authUser.role)
+                return
+            }
+
+            // Otherwise check if there's a valid token
+            const token = localStorage.getItem("jwt")
+            if (token) {
+                const isLoggedIn = await checkAuth()
+                if (isLoggedIn) {
+                    const { authUser } = useAuthStore.getState()
+                    redirectToDashboard(authUser.role)
+                    return
+                }
+            }
+
+            setIsCheckingAuth(false)
+        }
+
+        verifyAuth()
+    }, [authUser, checkAuth, router])
+
+    const redirectToDashboard = (role) => {
+        if (role === 'admin') {
+            router.push('/dashboard/admin')
+        } else if (role === 'distributor') {
+            router.push('/dashboard/distributor')
+        } else {
+            router.push('/dashboard/user')
+        }
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -38,6 +77,13 @@ export default function Register() {
         }
     }
 
+    if (isCheckingAuth) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <div className="loading loading-spinner loading-lg text-primary"></div>
+            </div>
+        )
+    }
     return (
         <div>
             <Toaster position="top-center" />
